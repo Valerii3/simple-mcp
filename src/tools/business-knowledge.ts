@@ -1,13 +1,9 @@
 import { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config();
 
 // Tool definition for getting business knowledge
 export const getBusinessKnowledgeToolDefinition: Tool = {
   name: "get_business_knowledge",
-  description: "Retrieve comprehensive business knowledge and information from the configured environment",
+  description: "Retrieve business knowledge and information",
   inputSchema: {
     type: "object",
     properties: {},
@@ -18,19 +14,7 @@ export const getBusinessKnowledgeToolDefinition: Tool = {
 // Handler function for the business knowledge tool
 export async function handleGetBusinessKnowledge(): Promise<CallToolResult> {
   try {
-    const businessKnowledge = process.env.Business_knowledge;
-    
-    if (!businessKnowledge) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: "Error: Business_knowledge environment variable is not set. Please configure it in your .env file."
-          }
-        ],
-        isError: true
-      };
-    }
+    const businessKnowledge = "I am photographer and work from 9-5 on weekends.";
 
     return {
       content: [
