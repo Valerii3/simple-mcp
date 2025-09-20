@@ -1,28 +1,33 @@
 #!/usr/bin/env node
 
-import { createStandaloneServer } from './server.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { loadConfig } from './config.js';
+import { parseArgs } from './cli.js';
+import { BusinessKnowledgeServer } from './server.js';
+import { runStdioTransport, startHttpTransport } from './transport/index.js';
 
+/**
+ * Transport selection logic:
+ * 1. --stdio flag forces STDIO transport
+ * 2. Default: HTTP transport for production compatibility
+ */
 async function main() {
-  const args = process.argv.slice(2);
-  const useStdio = args.includes('--stdio');
-
-  const server = createStandaloneServer();
-
-  if (useStdio) {
-    // Use stdio transport for MCP communication
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
-    console.error('Simple Business Knowledge MCP Server running on stdio');
-  } else {
-    // For development/testing purposes, you could add HTTP transport here
-    console.error('Simple Business Knowledge MCP Server - use --stdio flag for MCP communication');
-    process.exit(1);
-  }
+    try {
+        const config = loadConfig();
+        const cliOptions = parseArgs();
+        
+        if (cliOptions.stdio) {
+            // STDIO transport for local development
+            const server = new BusinessKnowledgeServer();
+            await runStdioTransport(server.getServer());
+        } else {
+            // HTTP transport for production/cloud deployment
+            const port = cliOptions.port || config.port;
+            startHttpTransport({ ...config, port });
+        }
+    } catch (error) {
+        console.error("Fatal error running Business Knowledge server:", error);
+        process.exit(1);
+    }
 }
 
-main().catch((error) => {
-  console.error('Server error:', error);
-  process.exit(1);
-});
+main();
