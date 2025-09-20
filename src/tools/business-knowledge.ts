@@ -14,7 +14,8 @@ export const getBusinessKnowledgeToolDefinition: Tool = {
 // Handler function for the business knowledge tool
 export async function handleGetBusinessKnowledge(): Promise<CallToolResult> {
   try {
-    const businessKnowledge = process.env.BUSINESS_KNOWLEDGE;
+    const businessKnowledge = (process.env.BUSINESS_KNOWLEDGE || "").replace(/\\n/g, "\n");
+
     
     if (!businessKnowledge) {
       return {
